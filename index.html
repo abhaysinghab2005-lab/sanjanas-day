@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1b4332" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sanjana's Day" />
+  <meta name="description" content="Sanjana's Daily Routine Tracker — a gentle path to becoming unstoppable." />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+
+  <title>Sanjana's Day 🌱</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --green-dark:   #1b4332;
+      --green-mid:    #2d6a4f;
+      --green-light:  #52b788;
+      --green-pale:   #d8f3dc;
+      --cream:        #fffdf9;
+      --cream-bg:     #f5f0e8;
+      --cream-card:   #faf7f2;
+      --text-dark:    #1c2b1e;
+      --text-mid:     #3a5042;
+      --text-muted:   #7a9080;
+      --study-bg:     #eef0fa;
+      --study-color:  #3d50c3;
+      --free-bg:      #fdebd0;
+      --free-color:   #c96a00;
+      --rest-bg:      #efebe9;
+      --rest-color:   #6d4c41;
+      --nature-bg:    #d6ead9;
+      --nature-color: #2d6a4f;
+      --radius:       18px;
+      --safe-top:     env(safe-area-inset-top, 0px);
+      --safe-bottom:  env(safe-area-inset-bottom, 0px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream-bg);
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: var(--text-dark);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+    @keyframes checkPop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.4); }
+      65%  { transform: scale(0.88); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -300% center; }
+      100% { background-position:  300% center; }
+    }
+    @keyframes sprintPulse {
+      0%, 100% { box-shadow: 0 0 0 0   rgba(61,80,195,.35); }
+      50%       { box-shadow: 0 0 0 8px rgba(61,80,195,0);   }
+    }
+    @keyframes progressGrow {
+      from { width: 0; }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(30px) scale(.95); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+    @keyframes toastOut {
+      to   { opacity: 0; transform: translateY(30px) scale(.95); }
+    }
+    @keyframes streakPop {
+      0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+      60%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(155deg, var(--green-dark) 0%, var(--green-mid) 55%, var(--green-light) 100%);
+      padding: calc(20px + var(--safe-top)) 22px 28px;
+      border-radius: 0 0 34px 34px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(27,67,50,.28);
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,.05);
+      border-radius: 50%;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -30px;
+      width: 160px; height: 160px;
+      background: rgba(255,255,255,.04);
+      border-radius: 50%;
+    }
+    .header-leaf {
+      position: absolute;
+      top: calc(10px + var(--safe-top));
+      right: 18px;
+      font-size: 72px;
+      opacity: .1;
+      transform: rotate(18deg);
+      pointer-events: none;
+      line-height: 1;
+    }
+    .header-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+    .date-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--green-pale);
+      font-weight: 500;
+    }
+    .streak-badge {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 99px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #fff;
+      font-weight: 600;
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      animation: streakPop .5s .3s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.5px;
+      margin: 2px 0 3px;
+      position: relative;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #95d5b2;
+      margin-bottom: 22px;
+      font-style: italic;
+    }
+
+    /* Progress card */
+    .progress-card {
+      background: rgba(255,255,255,.13);
+      border-radius: 16px;
+      padding: 14px 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.18);
+      position: relative;
+    }
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 9px;
+    }
+    .progress-lbl { font-size: 11px; color: var(--green-pale); letter-spacing: 1.2px; text-transform: uppercase; font-weight: 500; }
+    .progress-pct { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Playfair Display', serif; }
+    .track {
+      background: rgba(255,255,255,.2);
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #74c69d, #d8f3dc);
+      transition: width .65s cubic-bezier(.34,1.56,.64,1);
+      animation: progressGrow .8s ease both;
+      min-width: 0;
+      position: relative;
+    }
+    .fill::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0;
+      width: 12px; height: 100%;
+      background: rgba(255,255,255,.4);
+      border-radius: 99px;
+      filter: blur(3px);
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+    }
+    .stat { font-size: 11px; color: #95d5b2; font-weight: 500; }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 16px 16px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 99px;
+      border: 1.5px solid #d4e5d8;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .2s ease;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .tab.active {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(45,106,79,.3);
+    }
+
+    /* ── CARDS ── */
+    .list { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 11px; }
+
+    .card {
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: 15px 15px 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.055);
+      position: relative;
+      overflow: hidden;
+      animation: slideUp .4s ease both;
+      transition: transform .2s ease, box-shadow .2s ease, opacity .3s ease;
+      border-left: 4px solid transparent;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card:active { transform: scale(.985); }
+    .card.done { opacity: .58; }
+    .card.sprint { border-left-color: var(--study-color); }
+    .card.nature { border-left-color: var(--nature-color); }
+
+    .sprint-pill {
+      position: absolute;
+      top: 11px; right: 50px;
+      background: linear-gradient(90deg, #3d50c3, #5c6bc0);
+      color: #fff;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 3px 8px;
+      border-radius: 99px;
+      animation: sprintPulse 2.2s infinite;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 7px;
+    }
+    .card-left { display: flex; align-items: flex-start; gap: 11px; flex: 1; min-width: 0; }
+    .icon { font-size: 25px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+    .card-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .time-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+    .task-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+      line-height: 1.3;
+    }
+    .task-title.done-text { text-decoration: line-through; color: var(--text-muted); }
+
+    /* Custom checkbox */
+    .cb-wrap {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cb {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      border: 2px solid #b5c4b1;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s, border-color .18s;
+      position: relative;
+    }
+    .cb.checked {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
+    }
+    .cb.pop { animation: checkPop .38s ease; }
+    .checkmark {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity .15s, transform .15s;
+    }
+    .cb.checked .checkmark { opacity: 1; transform: scale(1); }
+
+    .desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.58;
+      margin-bottom: 10px;
+      padding-left: 37px;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding-left: 37px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+    .no-phone {
+      font-size: 10.5px;
+      color: #c0392b;
+      background: #fdecea;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    /* ── TIP SECTION ── */
+    .bottom-section { padding: 18px 16px 0; }
+
+    .tip-card {
+      border-radius: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, #1b4332, #2d6a4f 50%, #52b788);
+      background-size: 300% auto;
+      animation: shimmer 8s linear infinite;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .tip-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--green-pale);
+      margin-bottom: 7px;
+    }
+    .tip-text { font-size: 13.5px; line-height: 1.65; opacity: .93; }
+    .tip-nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .tip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.3);
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .tip-dot.active { background: #fff; transform: scale(1.3); }
+
+    /* ── RESET BUTTON ── */
+    .reset-btn {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px dashed #b5c4b1;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      margin-bottom: 12px;
+    }
+    .reset-btn:active { background: #f0ede6; }
+
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: #a0b0a3;
+      padding-bottom: calc(20px + var(--safe-bottom));
+      line-height: 1.6;
+    }
+
+    /* ── INSTALL BANNER ── */
+    .install-banner {
+      margin: 14px 16px 0;
+      background: linear-gradient(135deg, #fff8ee, #fff3e0);
+      border: 1.5px solid #f0c070;
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: slideUp .5s ease both;
+    }
+    .install-icon { font-size: 28px; flex-shrink: 0; }
+    .install-text { flex: 1; }
+    .install-title { font-size: 13px; font-weight: 700; color: #7a4f00; margin-bottom: 2px; }
+    .install-sub   { font-size: 11.5px; color: #a06820; line-height: 1.4; }
+    .install-btn {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(217,119,6,.3);
+      transition: transform .15s;
+    }
+    .install-btn:active { transform: scale(.95); }
+    .install-close {
+      position: absolute;
+      top: 8px; right: 10px;
+      background: none; border: none;
+      font-size: 16px; cursor: pointer;
+      color: #c09050; line-height: 1;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: calc(20px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green-dark);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+      z-index: 1000;
+      animation: toastIn .3s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.out { animation: toastOut .3s ease forwards; }
+
+    /* ── CONFETTI ── */
+    .confetti-piece {
+      position: fixed;
+      top: -20px;
+      border-radius: 2px;
+      animation: fall ease-in forwards;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── HIDDEN ── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div id="confetti-container"></div>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-leaf">🌿</div>
+  <div class="header-top-row">
+    <span class="date-label" id="date-label">Sunday, 7 June</span>
+    <span class="streak-badge" id="streak-badge">🔥 <span id="streak-num">0</span> day streak</span>
+  </div>
+  <h1 class="title">Sanjana's Day 🌱</h1>
+  <p class="subtitle">Your gentle path to becoming unstoppable</p>
+
+  <div class="progress-card">
+    <div class="progress-row">
+      <span class="progress-lbl">Daily Progress</span>
+      <span class="progress-pct" id="pct-label">0%</span>
+    </div>
+    <div class="track"><div class="fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="stats-row">
+      <span class="stat" id="stat-tasks">✅ 0/13 tasks</span>
+      <span class="stat" id="stat-sprints">📚 0/4 sprints</span>
+      <span class="stat" id="stat-mood">💪 Let's begin!</span>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div class="install-banner hidden" id="install-banner" style="position:relative">
+  <div class="install-icon">📲</div>
+  <div class="install-text">
+    <div class="install-title">Install as an App!</div>
+    <div class="install-sub">Add to Home Screen for easy daily access — works offline too.</div>
+  </div>
+  <button class="install-btn" id="install-btn">Install</button>
+  <button class="install-close" id="install-close">✕</button>
+</div>
+
+<!-- FILTER TABS -->
+<div class="tabs">
+  <button class="tab active" data-filter="all">All ✦</button>
+  <button class="tab" data-filter="study">📚 Study</button>
+  <button class="tab" data-filter="free">📱 Free Time</button>
+  <button class="tab" data-filter="nature">🌿 Nature</button>
+  <button class="tab" data-filter="rest">😴 Rest</button>
+</div>
+
+<!-- SCHEDULE LIST -->
+<div class="list" id="schedule-list"></div>
+
+<!-- BOTTOM SECTION -->
+<div class="bottom-section">
+  <div class="tip-card" id="tip-card">
+    <p class="tip-heading">✨ Pro-Tip of the Day</p>
+    <p class="tip-text" id="tip-text"></p>
+    <div class="tip-nav" id="tip-nav"></div>
+  </div>
+
+  <button class="reset-btn" id="reset-btn">🔄 Reset Today's Progress</button>
+
+  <p class="footer-note">
+    Made with 💚 for Sanjana<br>
+    Resets automatically each new day · Works offline
+  </p>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const SCHEDULE = [
+  { id:1,  time:"05:30 – 06:00 AM", title:"Wake Up & Morning Reset",   desc:"Drink water, step onto the balcony or terrace. Breathe deeply. No phone — just you and the morning air.",  tag:"🌿 Nature Reset", tagColor:"#2d6a4f", tagBg:"#d6ead9", icon:"🌅", filter:"nature", noPhone:true  },
+  { id:2,  time:"06:00 – 06:30 AM", title:"SPRINT 1 — Tough Subject",  desc:"Deep focus on your hardest subject. Phone on silent, door closed. This is your power hour.",           tag:"📚 Study",       tagColor:"#3d50c3", tagBg:"#eef0fa", icon:"🔥", filter:"study",  sprint:true  },
+  { id:3,  time:"06:30 – 08:00 AM", title:"Get Ready + Breakfast",     desc:"Freshen up, eat a good meal. Free phone & social media time — you've already crushed a sprint!",           tag:"📱 Free Time",   tagColor:"#c96a00", tagBg:"#fdebd0", icon:"🍳", filter:"free"               },
+  { id:4,  time:"10:00 – 10:30 AM", title:"SPRINT 2 — Revision & Notes", desc:"Short notes or quick revision of yesterday's work. Keep it crisp and visual — sticky notes help!",      tag:"📚 Study",       tagColor:"#3d50c3", tagBg:"#eef0fa", icon:"📝", filter:"study",  sprint:true  },
+  { id:5,  time:"10:30 AM – 01:30 PM", title:"Long Free Time",         desc:"Movies, chatting, hobbies — fully unwind. This is your longest recharge block. Enjoy every minute.",       tag:"📱 Free Time",   tagColor:"#c96a00", tagBg:"#fdebd0", icon:"🎬", filter:"free"               },
+  { id:6,  time:"01:30 – 02:30 PM", title:"Lunch & Relax",             desc:"Eat mindfully. Sit with family if you can. Rest your eyes from screens for a bit.",                        tag:"😴 Rest",         tagColor:"#6d4c41", tagBg:"#efebe9", icon:"🥗", filter:"rest"               },
+  { id:7,  time:"02:30 – 03:00 PM", title:"SPRINT 3 — Light Subject",  desc:"English, EVS or any creative subject. Light focus beats the post-lunch brain fog gently.",                tag:"📚 Study",       tagColor:"#3d50c3", tagBg:"#eef0fa", icon:"✏️", filter:"study",  sprint:true  },
+  { id:8,  time:"03:00 – 05:00 PM", title:"Afternoon Nap / Rest",      desc:"Full rest with zero guilt. Sleep literally moves today's study into long-term memory. Science-backed!",    tag:"😴 Rest",         tagColor:"#6d4c41", tagBg:"#efebe9", icon:"🌙", filter:"rest"               },
+  { id:9,  time:"05:00 – 06:30 PM", title:"Evening Tea & Nature Walk", desc:"20–30 min walk outside — no earphones, no phone. Notice things. It resets your dopamine better than any app.", tag:"🌿 Nature Reset", tagColor:"#2d6a4f", tagBg:"#d6ead9", icon:"🚶‍♀️", filter:"nature", noPhone:true },
+  { id:10, time:"06:30 – 08:30 PM", title:"Free Screen / Family Time", desc:"Scroll, watch, talk with family or friends. This is completely guilt-free screen time. Enjoy!",            tag:"📱 Free Time",   tagColor:"#c96a00", tagBg:"#fdebd0", icon:"👨‍👩‍👧", filter:"free"              },
+  { id:11, time:"08:30 – 09:30 PM", title:"Dinner",                    desc:"Eat well and sit down for it. A calm, unhurried dinner sets up the best kind of night.",                    tag:"😴 Rest",         tagColor:"#6d4c41", tagBg:"#efebe9", icon:"🍽️", filter:"rest"              },
+  { id:12, time:"09:30 – 10:00 PM", title:"FINAL SPRINT — Quick Review", desc:"Flip through what you studied today. Even 15 mins of recall triples how much you remember tomorrow.",   tag:"📚 Study",       tagColor:"#3d50c3", tagBg:"#eef0fa", icon:"🌟", filter:"study",  sprint:true  },
+  { id:13, time:"10:15 PM",          title:"Lights Out 🌙",             desc:"Screens off 15 minutes before sleep. Your brain needs the dark to consolidate everything you learned.",    tag:"😴 Rest",         tagColor:"#6d4c41", tagBg:"#efebe9", icon:"💤", filter:"rest"               },
+];
+
+const TIPS = [
+  "🧠 Every time you resist picking up your phone, your brain's prefrontal cortex literally gets stronger. You are rewiring yourself — one choice at a time.",
+  "🌿 A 20-minute walk without your phone has been shown to reduce cortisol (your stress hormone) significantly. That walk is better medicine than most apps.",
+  "⚡ Dopamine isn't your enemy — but cheap dopamine from endless scrolling dulls your ability to feel joy from real achievements. Protect your reward system.",
+  "📵 The first 30 minutes after waking set your brain's dopamine baseline for the whole day. No phone in the morning = calmer, sharper, happier you all day.",
+  "🎯 Short sprints work because your brain can sustain true hyperfocus for only 25–30 minutes before needing a reset. You're not lazy — you're just human.",
+  "💤 Sleep is when your brain replays and permanently stores everything you studied. Protecting 8 hours of sleep is literally free extra study time.",
+  "🌅 Morning sunlight syncs your circadian rhythm and boosts serotonin — making it easier to fall asleep at night and wake up alert. Step outside first!",
+  "📖 The 'testing effect' is real: recalling information (like in your Final Sprint) is 3× more effective for memory than re-reading your notes.",
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+const today   = new Date().toDateString();
+const SK      = `sanjana-routine-${today}`;
+const SK_STREAK = `sanjana-streak`;
+
+let checked   = {};
+let tipIndex  = 0;
+let activeFilter = "all";
+let deferredInstallPrompt = null;
+
+// Load saved state
+try { const s = localStorage.getItem(SK); if (s) checked = JSON.parse(s); } catch {}
+
+// ─── STREAK ─────────────────────────────────────────────────────────────────
+function getStreak() {
+  try {
+    const raw = localStorage.getItem(SK_STREAK);
+    const data = raw ? JSON.parse(raw) : { streak: 0, lastDate: null };
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    if (data.lastDate === today) return data.streak;
+    if (data.lastDate === yesterday.toDateString()) return data.streak; // will count today when done
+    return 0;
+  } catch { return 0; }
+}
+function updateStreak(completed) {
+  try {
+    const raw = localStorage.getItem(SK_STREAK);
+    const data = raw ? JSON.parse(raw) : { streak: 0, lastDate: null };
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    if (completed) {
+      if (data.lastDate === today) return; // already counted
+      const newStreak = data.lastDate === yesterday.toDateString() ? data.streak + 1 : 1;
+      localStorage.setItem(SK_STREAK, JSON.stringify({ streak: newStreak, lastDate: today }));
+      document.getElementById('streak-num').textContent = newStreak;
+    }
+  } catch {}
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────────────────
+function renderSchedule() {
+  const list = document.getElementById('schedule-list');
+  list.innerHTML = '';
+  const items = activeFilter === 'all' ? SCHEDULE : SCHEDULE.filter(i => i.filter === activeFilter);
+
+  items.forEach((item, idx) => {
+    const isDone = !!checked[item.id];
+    const card = document.createElement('div');
+    card.className = `card${item.sprint ? ' sprint' : item.noPhone ? ' nature' : ''}${isDone ? ' done' : ''}`;
+    card.style.animationDelay = `${idx * 0.055}s`;
+    card.dataset.id = item.id;
+
+    card.innerHTML = `
+      ${item.sprint ? `<div class="sprint-pill">SPRINT</div>` : ''}
+      <div class="card-top">
+        <div class="card-left">
+          <span class="icon">${item.icon}</span>
+          <div class="card-meta">
+            <span class="time-label">${item.time}</span>
+            <span class="task-title${isDone ? ' done-text' : ''}">${item.title}</span>
+          </div>
+        </div>
+        <div class="cb-wrap" data-id="${item.id}" role="checkbox" aria-checked="${isDone}" tabindex="0">
+          <div class="cb${isDone ? ' checked' : ''}">
+            <span class="checkmark">✓</span>
+          </div>
+        </div>
+      </div>
+      <p class="desc">${item.desc}</p>
+      <div class="card-footer">
+        <span class="tag" style="color:${item.tagColor};background:${item.tagBg}">${item.tag}</span>
+        ${item.noPhone ? `<span class="no-phone">📵 No Phone Zone</span>` : ''}
+      </div>
+    `;
+
+    list.appendChild(card);
+  });
+
+  // Delegated checkbox clicks
+  list.querySelectorAll('.cb-wrap').forEach(el => {
+    el.addEventListener('click', () => toggleItem(parseInt(el.dataset.id)));
+    el.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleItem(parseInt(el.dataset.id)); } });
+  });
+}
+
+function updateStats() {
+  const total   = SCHEDULE.length;
+  const done    = Object.values(checked).filter(Boolean).length;
+  const sprints = SCHEDULE.filter(i => i.sprint && checked[i.id]).length;
+  const pct     = Math.round((done / total) * 100);
+
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('pct-label').textContent = pct + '%';
+  document.getElementById('stat-tasks').textContent = `✅ ${done}/${total} tasks`;
+  document.getElementById('stat-sprints').textContent = `📚 ${sprints}/4 sprints`;
+
+  const moods = [
+    [0,   "💪 Let's begin!"],
+    [20,  "🌱 Starting strong!"],
+    [40,  "🔥 On a roll!"],
+    [60,  "⚡ Halfway — keep it up!"],
+    [80,  "🚀 Almost there!"],
+    [100, "🎉 Perfect day, Sanjana!"],
+  ];
+  const mood = moods.reverse().find(([t]) => pct >= t);
+  document.getElementById('stat-mood').textContent = mood[1];
+
+  if (pct === 100) { launchConfetti(); updateStreak(true); }
+}
+
+// ─── TOGGLE ─────────────────────────────────────────────────────────────────
+function toggleItem(id) {
+  checked[id] = !checked[id];
+  try { localStorage.setItem(SK, JSON.stringify(checked)); } catch {}
+
+  // Update card in DOM (no full re-render for smooth animation)
+  const wrap = document.querySelector(`.cb-wrap[data-id="${id}"]`);
+  if (!wrap) return;
+  const cb   = wrap.querySelector('.cb');
+  const card = wrap.closest('.card');
+  const title = card.querySelector('.task-title');
+
+  cb.classList.add('pop');
+  cb.addEventListener('animationend', () => cb.classList.remove('pop'), { once: true });
+
+  if (checked[id]) {
+    cb.classList.add('checked');
+    title.classList.add('done-text');
+    title.innerHTML = title.textContent; // remove tags if any
+    card.classList.add('done');
+    const item = SCHEDULE.find(i => i.id === id);
+    if (item) showToast(`${item.icon} Done! Great job 🌿`);
+  } else {
+    cb.classList.remove('checked');
+    title.classList.remove('done-text');
+    card.classList.remove('done');
+  }
+
+  updateStats();
+}
+
+// ─── TIPS ────────────────────────────────────────────────────────────────────
+function renderTips() {
+  document.getElementById('tip-text').textContent = TIPS[tipIndex];
+  const nav = document.getElementById('tip-nav');
+  nav.innerHTML = TIPS.map((_, i) =>
+    `<div class="tip-dot${i === tipIndex ? ' active' : ''}" data-i="${i}"></div>`
+  ).join('');
+  nav.querySelectorAll('.tip-dot').forEach(d =>
+    d.addEventListener('click', () => { tipIndex = parseInt(d.dataset.i); renderTips(); })
+  );
+}
+
+// ─── TOAST ──────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden', 'out');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    t.classList.add('out');
+    setTimeout(() => t.classList.add('hidden'), 300);
+  }, 2200);
+}
+
+// ─── CONFETTI ────────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#a8d5b5','#f9c74f','#f4a261','#90be6d','#43aa8b','#e9c46a','#74c69d'];
+  for (let i = 0; i < 55; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const size = 6 + Math.random() * 9;
+    el.style.cssText = `
+      left:${Math.random()*100}%;
+      width:${size}px;height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${2.5+Math.random()*1.5}s;
+      animation-delay:${Math.random()*1.8}s;
+      transform:rotate(${Math.random()*360}deg);
+      border-radius:${Math.random()>.5?'50%':'2px'};
+    `;
+    container.appendChild(el);
+  }
+  setTimeout(() => container.innerHTML = '', 5000);
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeFilter = tab.dataset.filter;
+    renderSchedule();
+  });
+});
+
+// ─── RESET ──────────────────────────────────────────────────────────────────
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (!confirm('Reset all of today\'s progress?')) return;
+  checked = {};
+  try { localStorage.removeItem(SK); } catch {}
+  renderSchedule();
+  updateStats();
+  showToast('🔄 Progress reset for today');
+});
+
+// ─── DATE ───────────────────────────────────────────────────────────────────
+document.getElementById('date-label').textContent =
+  new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
+
+// ─── STREAK INIT ────────────────────────────────────────────────────────────
+document.getElementById('streak-num').textContent = getStreak();
+
+// ─── PWA INSTALL ─────────────────────────────────────────────────────────────
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('install-banner').classList.remove('hidden');
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('install-banner').classList.add('hidden');
+  if (outcome === 'accepted') showToast('🎉 App installed! Check your home screen');
+});
+
+document.getElementById('install-close').addEventListener('click', () => {
+  document.getElementById('install-banner').classList.add('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.add('hidden');
+  showToast('✅ App successfully installed!');
+});
+
+// ─── SERVICE WORKER ──────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ─── TIP INDEX (random per day) ─────────────────────────────────────────────
+tipIndex = new Date().getDay() % TIPS.length;
+
+// ─── INIT ───────────────────────────────────────────────────────────────────
+renderSchedule();
+updateStats();
+renderTips();
+</script>
+</body>
+</html>
