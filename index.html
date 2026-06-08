@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -721,139 +721,60 @@ function toggleItem(id) {
   const wrap = document.querySelector(`.cb-wrap[data-id="${id}"]`);
   if (!wrap) return;
   const cb   = wrap.querySelector('.cb');
-  const card = wrap.closest('.card');
-  const title = card.querySelector('.task-title');
+  const card = wrap.closest      content: '';
+      position: absolute;
+      right: 0; top: 0;
+      width: 12px; height: 100%;
+      background: rgba(255,255,255,.4);
+      border-radius: 99px;
+      filter: blur(3px);
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+    }
+    .stat { font-size: 11px; color: #95d5b2; font-weight: 500; }
 
-  cb.classList.add('pop');
-  cb.addEventListener('animationend', () => cb.classList.remove('pop'), { once: true });
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 16px 16px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 99px;
+      border: 1.5px solid #d4e5d8;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .2s ease;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .tab.active {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(45,106,79,.3);
+    }
 
-  if (checked[id]) {
-    cb.classList.add('checked');
-    title.classList.add('done-text');
-    title.innerHTML = title.textContent; // remove tags if any
-    card.classList.add('done');
-    const item = SCHEDULE.find(i => i.id === id);
-    if (item) showToast(`${item.icon} Done! Great job 🌿`);
-  } else {
-    cb.classList.remove('checked');
-    title.classList.remove('done-text');
-    card.classList.remove('done');
-  }
+    /* ── CARDS ── */
+    .list { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 11px; }
 
-  updateStats();
-}
+    .card {
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: 15px 15px 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.055);
+      position: relative;
+      overflow: hidden;
+      animation: slideUp .4s ease both;
+      transition: transform .2s ease, box-shadow .2s ease, opacity .3s ease;
+      border-left: 4px solid transpare
 
-// ─── TIPS ────────────────────────────────────────────────────────────────────
-function renderTips() {
-  document.getElementById('tip-text').textContent = TIPS[tipIndex];
-  const nav = document.getElementById('tip-nav');
-  nav.innerHTML = TIPS.map((_, i) =>
-    `<div class="tip-dot${i === tipIndex ? ' active' : ''}" data-i="${i}"></div>`
-  ).join('');
-  nav.querySelectorAll('.tip-dot').forEach(d =>
-    d.addEventListener('click', () => { tipIndex = parseInt(d.dataset.i); renderTips(); })
-  );
-}
-
-// ─── TOAST ──────────────────────────────────────────────────────────────────
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.remove('hidden', 'out');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    t.classList.add('out');
-    setTimeout(() => t.classList.add('hidden'), 300);
-  }, 2200);
-}
-
-// ─── CONFETTI ────────────────────────────────────────────────────────────────
-function launchConfetti() {
-  const container = document.getElementById('confetti-container');
-  const colors = ['#a8d5b5','#f9c74f','#f4a261','#90be6d','#43aa8b','#e9c46a','#74c69d'];
-  for (let i = 0; i < 55; i++) {
-    const el = document.createElement('div');
-    el.className = 'confetti-piece';
-    const size = 6 + Math.random() * 9;
-    el.style.cssText = `
-      left:${Math.random()*100}%;
-      width:${size}px;height:${size}px;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      animation-duration:${2.5+Math.random()*1.5}s;
-      animation-delay:${Math.random()*1.8}s;
-      transform:rotate(${Math.random()*360}deg);
-      border-radius:${Math.random()>.5?'50%':'2px'};
-    `;
-    container.appendChild(el);
-  }
-  setTimeout(() => container.innerHTML = '', 5000);
-}
-
-// ─── TABS ────────────────────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    activeFilter = tab.dataset.filter;
-    renderSchedule();
-  });
-});
-
-// ─── RESET ──────────────────────────────────────────────────────────────────
-document.getElementById('reset-btn').addEventListener('click', () => {
-  if (!confirm('Reset all of today\'s progress?')) return;
-  checked = {};
-  try { localStorage.removeItem(SK); } catch {}
-  renderSchedule();
-  updateStats();
-  showToast('🔄 Progress reset for today');
-});
-
-// ─── DATE ───────────────────────────────────────────────────────────────────
-document.getElementById('date-label').textContent =
-  new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' });
-
-// ─── STREAK INIT ────────────────────────────────────────────────────────────
-document.getElementById('streak-num').textContent = getStreak();
-
-// ─── PWA INSTALL ─────────────────────────────────────────────────────────────
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  document.getElementById('install-banner').classList.remove('hidden');
-});
-
-document.getElementById('install-btn').addEventListener('click', async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  const { outcome } = await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  document.getElementById('install-banner').classList.add('hidden');
-  if (outcome === 'accepted') showToast('🎉 App installed! Check your home screen');
-});
-
-document.getElementById('install-close').addEventListener('click', () => {
-  document.getElementById('install-banner').classList.add('hidden');
-});
-
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-banner').classList.add('hidden');
-  showToast('✅ App successfully installed!');
-});
-
-// ─── SERVICE WORKER ──────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
-
-// ─── TIP INDEX (random per day) ─────────────────────────────────────────────
-tipIndex = new Date().getDay() % TIPS.length;
-
-// ─── INIT ───────────────────────────────────────────────────────────────────
-renderSchedule();
-updateStats();
-renderTips();
-</script>
-</body>
-</html>
